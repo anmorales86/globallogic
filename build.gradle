@@ -1,0 +1,94 @@
+//file:noinspection GradlePackageUpdate
+plugins {
+	id 'org.springframework.boot' version '2.5.14' // Adjust version as needed
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'java'
+	id 'io.swagger.core.v3.swagger-gradle-plugin' version '2.1.9'
+	id 'jacoco'
+	id 'org.sonarqube' version '4.2.0.3129' // Ensure compatible version
+}
+
+
+java {
+	sourceCompatibility = 11
+}
+
+
+group = 'com.anderson.globallogic'
+version = '0.0.1'
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	google()
+	maven {
+		url "https://jitpack.io"
+	}
+}
+
+jacocoTestReport {
+
+	afterEvaluate {
+		classDirectories.setFrom(
+				files(
+						classDirectories.files.collect { fileTree(dir: it, exclude: [
+								'**/model/dto/**',      // Excluir DTOs
+								'**/model/entities/**', // Excluir Entities
+								'**/exception/**',      // Excluir Exceptions
+								'**/util/**'            // Excluir clases utilitarias
+						]) }
+				)
+		)
+	}
+}
+
+tasks['sonarqube'].dependsOn jacocoTestReport
+
+
+
+
+dependencies {
+
+	// spring boot dependencies
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation ("org.springframework.boot:spring-boot-starter-test") {
+		exclude group: "org.junit.vintage", module: "junit-vintage-engine"
+	}
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	runtimeOnly 'com.h2database:h2'
+
+
+	// If using JUnit Vintage
+	testCompileOnly("junit:junit:4.13.2")
+	testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.9.2")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+
+
+	// project lombok dependencies
+	compileOnly 'org.projectlombok:lombok:1.18.30'
+	annotationProcessor 'org.projectlombok:lombok:1.18.30','org.mapstruct:mapstruct-processor:1.4.2.Final'
+	implementation 'org.projectlombok:lombok:1.18.30'
+
+	// other dependencies
+	implementation group: 'io.swagger.core.v3', name: 'swagger-core', version: '2.1.9'
+	implementation 'io.swagger.parser.v3:swagger-parser:2.1.2'
+	implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+
+	implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+	implementation 'org.modelmapper:modelmapper:2.3.0'
+	testImplementation 'org.mockito:mockito-inline:3.4.0'
+
+
+}
+
+
+
+test {
+	useJUnitPlatform()
+}
